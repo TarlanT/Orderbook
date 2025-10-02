@@ -55,4 +55,15 @@ public class KucRestAdapter {
         return null;
     }
 
+    public void fetchL2Book(Instrument instrument) {
+        String url = instrument instanceof PerpetualFuture ? "https://api-futures.kucoin.com/api/v3/market/orderbook/level2?symbol=" : "https://api.kucoin.com/api/v3/market/orderbook/level2?symbol=";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .uri(URI.create(url + instrument.getSymbol()))
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(10))
+                .build();
+    }
+
 }

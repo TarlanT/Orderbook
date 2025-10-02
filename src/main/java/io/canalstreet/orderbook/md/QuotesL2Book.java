@@ -21,6 +21,9 @@ public class QuotesL2Book  {
     private final long pegIndexPrice;
     private long bestBidPrice = Integer.MIN_VALUE;
     private long bestAskPrice = Integer.MAX_VALUE;
+    private long initSequence = 0;
+    private long lastSequenceStart = 0;
+    private long lastSequenceEnd = 0;
 
     public QuotesL2Book(Instrument instrument, int l2depth, int size) {
         this.instrument = instrument;
@@ -33,7 +36,15 @@ public class QuotesL2Book  {
         }
     }
 
+    public boolean isInitialized() {
+        return this.initSequence > 0;
+    }
+
     public void add(QuoteSide side, long price, int quantity) {
+        add(side, price, quantity, 0, 0);
+    }
+
+    public void add(QuoteSide side, long price, int quantity, long sequenceStart, long sequenceEnd) {
         if (side == BID && bestBidPrice == Integer.MIN_VALUE) bestBidPrice = price;
         if (side == ASK && bestAskPrice == Integer.MAX_VALUE) bestAskPrice = price;
         if (outsideDepth(side, price))
@@ -47,6 +58,9 @@ public class QuotesL2Book  {
         else if (side == ASK) {
             updateAskBounds(price, quantity);
         }
+        if (lastSequenceEnd == 0) initSequence = sequenceStart;
+        this.lastSequenceStart = sequenceStart;
+        this.lastSequenceEnd = sequenceEnd;
     }
 
     private void updateBidBounds(long price, int quantity) {
@@ -147,5 +161,13 @@ public class QuotesL2Book  {
             askPrice -= instrument.tickSizeInt();
         }
         return bids;
+    }
+
+    public long getLastSequenceStart(){
+        return this.lastSequenceStart;
+    }
+
+    public long getLastSequenceEnd(){
+        return this.lastSequenceEnd;
     }
 }
